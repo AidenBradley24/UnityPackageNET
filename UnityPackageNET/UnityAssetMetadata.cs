@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using YamlDotNet;
-using YamlDotNet.RepresentationModel;
+﻿using YamlDotNet.RepresentationModel;
 
 namespace UnityPackageNET
 {
-	public class AssetMetadata
+	public class UnityAssetMetadata
 	{
 		YamlStream _yamlStream;
 
@@ -18,7 +11,7 @@ namespace UnityPackageNET
 
 		public YamlDocument Document => _yamlStream.Documents[0];
 
-		internal AssetMetadata(Guid guid)
+		public UnityAssetMetadata(Guid guid)
 		{
 			Guid = guid;
 			_yamlStream = new YamlStream();
@@ -32,7 +25,7 @@ namespace UnityPackageNET
 			_yamlStream.Add(new YamlDocument(root));
 		}
 
-		internal void LoadFromStream(Stream stream)
+		internal void LoadStream(Stream stream)
 		{
 			using var streamReader = new StreamReader(stream, leaveOpen: true);
 			_yamlStream.Load(streamReader);
@@ -56,10 +49,44 @@ namespace UnityPackageNET
 			}
 		}
 
-		internal void SaveToStream(Stream stream)
+		public void SaveToStream(Stream stream)
 		{
 			using var writer = new StreamWriter(stream, leaveOpen: true);
 			_yamlStream.Save(writer);
+		}
+
+		public static UnityAssetMetadata LoadFromStream(Stream stream)
+		{
+			YamlStream yamlStream;
+			using (var streamReader = new StreamReader(stream, leaveOpen: true))
+			{
+				yamlStream = new YamlStream();
+				yamlStream.Load(streamReader);
+			}
+
+			if (yamlStream.Documents.Count == 0)
+			{
+				var root = new YamlMappingNode
+				{
+					{ "fileFormatVersion", new YamlScalarNode("2") },
+					{ "guid", new YamlScalarNode(Guid.NewGuid().ToString("N")) }
+				};
+
+				yamlStream.Add(new YamlDocument(root));
+			}
+
+
+			if (yamlStream.Documents[0].RootNode is not YamlMappingNode mapping)
+			{
+				throw new Exception("Invalid YAML format: Root node is not a mapping node.");
+			}
+
+			Guid guid = Guid.Parse((string)mapping.Children["guid"]!);
+			var assetMetadata = new UnityAssetMetadata(guid)
+			{
+				_yamlStream = yamlStream
+			};
+			return assetMetadata;
 		}
 	}
 }

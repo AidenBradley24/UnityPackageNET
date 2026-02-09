@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace UnityPackageNET.Tests
 {
@@ -14,8 +10,7 @@ namespace UnityPackageNET.Tests
 			using var ms = new MemoryStream();
 			using (var writer = new UnityPackageWriter(ms, leaveOpen: true))
 			{
-				var builder = new UnityPackageBuilder();
-				var entry = builder.MakeEmptyEntry("Assets/test.txt");
+				var entry = UnityPackageFactory.MakeEmptyEntry("Assets/test.txt");
 				entry.DataStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello, Unity Package!"));
 				writer.WriteEntry(entry);
 			}

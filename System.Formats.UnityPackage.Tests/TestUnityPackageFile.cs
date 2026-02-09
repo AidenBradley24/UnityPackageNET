@@ -1,13 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UnityPackageNET.Tests
+﻿namespace UnityPackageNET.Tests
 {
 	public class TestUnityPackageFile
 	{
+		[Fact]
+		public void TestRoundTrip()
+		{
+			using var ms = new MemoryStream();
+
+			// Create and save
+			var asset1 = new UnityAssetMetadata(Guid.NewGuid());
+			asset1.SaveToStream(ms);
+
+			// Reset position
+			ms.Position = 0;
+
+			// Load
+			var asset2 = UnityAssetMetadata.LoadFromStream(ms);
+		}
+
 		[Fact]
 		public void TestExtractToDirectory()
 		{
@@ -26,6 +36,28 @@ namespace UnityPackageNET.Tests
 				Assert.True(File.Exists(file), $"Expected file {file} to exist after extraction.");
 			}
 			Directory.Delete(destDir, recursive: true);
+		}
+
+		[Fact]
+		public void TestCreateFromDirectory()
+		{
+			var sourceDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+			using (var source = File.OpenRead("test.unitypackage"))
+			{
+				UnityPackageFile.ExtractToDirectory(source, sourceDir, overwriteFiles: true);
+			}
+
+			var destFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".unitypackage");
+
+			using var destStream = File.Create(destFile);
+			UnityPackageFile.CreateFromDirectory(sourceDir, destStream);
+			Assert.True(File.Exists(destFile), $"Expected destination file {destFile} to be created.");
+			var fileInfo = new FileInfo(destFile);
+			Assert.True(fileInfo.Length > 0, $"Expected destination file {destFile} to have non-zero length.");
+
+			File.Delete(destFile);
+			Directory.Delete(sourceDir, recursive: true);
+			File.Delete(destFile);
 		}
 	}
 }

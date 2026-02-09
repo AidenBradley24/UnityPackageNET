@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Formats.Tar;
+﻿using System.Formats.Tar;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace UnityPackageNET
 {
@@ -64,14 +60,6 @@ namespace UnityPackageNET
 				_tarWriter.WriteEntry(pathnameEntry);
 			}
 
-		}
-
-		public void WriteBuilder(UnityPackageBuilder builder)
-		{
-			foreach (var entry in builder.GetAllEntries())
-			{
-				WriteEntry(entry);
-			}
 		}
 
 		public void Dispose()

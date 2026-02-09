@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace UnityPackageNET.Tests
 {
 	public class TestReader
@@ -22,7 +20,7 @@ namespace UnityPackageNET.Tests
 				"Assets/Sprites/Hexagon.png"
 			];
 
-			AssetMetadata? metadata = null;
+			UnityAssetMetadata? metadata = null;
 			UnityPackageEntry? entry = reader.GetNextEntry();
 			int i = 0;
 			while (entry != null)
