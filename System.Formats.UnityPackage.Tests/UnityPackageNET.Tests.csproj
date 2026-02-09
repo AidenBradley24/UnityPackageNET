@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UnityPackageNET\System.Formats.UnityPackage.csproj" />
+    <ProjectReference Include="..\UnityPackageNET\UnityPackageNET.csproj" />
   </ItemGroup>
 
   <ItemGroup>

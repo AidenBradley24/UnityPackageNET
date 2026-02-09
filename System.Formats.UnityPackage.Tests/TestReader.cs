@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace System.Formats.UnityPackage.Tests
+namespace UnityPackageNET.Tests
 {
 	public class TestReader
 	{
@@ -34,6 +34,7 @@ namespace System.Formats.UnityPackage.Tests
 				Assert.Equal(metadata, entry.Metadata);
 				Assert.Equal(entry.GUID, metadata.Guid);
 				Assert.Equal(expectedPaths[i++], metadata.PathName);
+				Assert.Equal(metadata.Guid, Guid.Parse((string)metadata.Document.RootNode["guid"]!));
 
 				entry = reader.GetNextEntry();
 			}

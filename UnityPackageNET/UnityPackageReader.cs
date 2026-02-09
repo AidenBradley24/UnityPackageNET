@@ -1,20 +1,21 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Formats.Tar;
 using System.IO.Compression;
+using YamlDotNet.RepresentationModel;
 
-namespace System.Formats.UnityPackage
+namespace UnityPackageNET
 {
-    public class UnityPackageReader : IDisposable, IAsyncDisposable
+    public class UnityPackageReader : IDisposable
     {
         private bool _disposed;
 
         private readonly TarReader _tarReader;
         private readonly GZipStream _gzipStream;
-		private readonly Stream _backingStream;
+        private readonly Stream _backingStream;
 
         UnityPackageEntry? currentEntry = null;
 
-		public UnityPackageReader(Stream stream)
+        public UnityPackageReader(Stream stream)
         {
             _backingStream = stream;
             _gzipStream = new GZipStream(_backingStream, CompressionMode.Decompress, leaveOpen: true);
@@ -87,28 +88,25 @@ namespace System.Formats.UnityPackage
             }
 
             var metadata = new AssetMetadata(entry.GUID);
-            if (!TryGetRegularFileEntry(entry.GUID, "pathname", out var pathnameEntry))
+            metadata.LoadFromStream(metadataEntry.DataStream!);
+
+			if (!TryGetRegularFileEntry(entry.GUID, "pathname", out var pathnameEntry))
             {
                 throw new InvalidDataException($"Expected a 'pathname' entry for GUID {entry.GUID}.");
             }
 
-			using var streamReader = new StreamReader(pathnameEntry.DataStream!, leaveOpen: true);
-			var pathName = streamReader.ReadToEnd().TrimEnd('\n', '\r');
+            using var streamReader = new StreamReader(pathnameEntry.DataStream!, leaveOpen: true);
+            var pathName = streamReader.ReadToEnd().TrimEnd('\n', '\r');
             metadata.PathName = pathName;
-
             entry.Metadata = metadata;
             return metadata;
-		}
+        }
 
-		public void Dispose()
+        public void Dispose()
         {
+            GC.SuppressFinalize(this);
             if (_disposed) return;
             _disposed = true;
         }
-
-		public ValueTask DisposeAsync()
-		{
-			throw new NotImplementedException();
-		}
-	}
+    }
 }
