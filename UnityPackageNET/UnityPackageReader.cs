@@ -7,6 +7,7 @@ namespace UnityPackageNET
 {
     public class UnityPackageReader : IDisposable
     {
+        private readonly bool _leaveOpen;
         private bool _disposed;
 
         private readonly TarReader _tarReader;
@@ -15,12 +16,13 @@ namespace UnityPackageNET
 
         UnityPackageEntry? currentEntry = null;
 
-        public UnityPackageReader(Stream stream)
+        public UnityPackageReader(Stream stream, bool leaveOpen = false)
         {
             _backingStream = stream;
             _gzipStream = new GZipStream(_backingStream, CompressionMode.Decompress, leaveOpen: true);
-			_tarReader = new TarReader(_gzipStream, leaveOpen: true);
-		}
+            _tarReader = new TarReader(_gzipStream, leaveOpen: true);
+            _leaveOpen = leaveOpen;
+        }
 
         private bool TryGetRegularFileEntry(Guid expectedGuid, string expectedName, [NotNullWhen(true)] out TarEntry? entry)
         {
@@ -33,7 +35,7 @@ namespace UnityPackageNET
             if (!entry.Name.StartsWith(expectedGuid.ToString("N") + "/") || !entry.Name.EndsWith("/" + expectedName))
             {
                 return false;
-			}
+            }
 
             return true;
         }
@@ -51,10 +53,10 @@ namespace UnityPackageNET
                 {
                     // this is the start of a new entry, we can break out of the loop and process it
                     guidEntry = tarEntry;
-					break;
+                    break;
                 }
-				// otherwise, this is some unexpected entry that we should skip
-			}
+                // otherwise, this is some unexpected entry that we should skip
+            }
 
             var guid = Guid.Parse(guidEntry.Name.AsSpan()[..^1]);
 
@@ -64,21 +66,22 @@ namespace UnityPackageNET
                 return GetNextEntry();
             }
 
-			var entry = new UnityPackageEntry(guid)
-			{
-				DataStream = assetFile.DataStream
-			};
+            var entry = new UnityPackageEntry(guid)
+            {
+                DataStream = assetFile.DataStream
+            };
 
             currentEntry = entry;
             return entry;
-		}
+        }
 
         public AssetMetadata GetMetadata(UnityPackageEntry entry)
         {
             if (currentEntry != entry || entry == null)
             {
                 throw new InvalidOperationException("Metadata can only be read for the current entry returned by GetNextEntry.");
-			};
+            }
+            ;
 
             entry.DataStream = null;
 
@@ -90,7 +93,7 @@ namespace UnityPackageNET
             var metadata = new AssetMetadata(entry.GUID);
             metadata.LoadFromStream(metadataEntry.DataStream!);
 
-			if (!TryGetRegularFileEntry(entry.GUID, "pathname", out var pathnameEntry))
+            if (!TryGetRegularFileEntry(entry.GUID, "pathname", out var pathnameEntry))
             {
                 throw new InvalidDataException($"Expected a 'pathname' entry for GUID {entry.GUID}.");
             }
@@ -107,6 +110,17 @@ namespace UnityPackageNET
             GC.SuppressFinalize(this);
             if (_disposed) return;
             _disposed = true;
+
+            _tarReader.Dispose();
+            _gzipStream.Dispose();
+            if (!_leaveOpen)
+            {
+                _backingStream.Dispose();
+            }
+            else
+            {
+                _backingStream.Flush();
+            }
         }
     }
 }
