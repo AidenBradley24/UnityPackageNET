@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/nuget.yml" />
+    <File Path="README.md" />
+  </Folder>
   <Project Path="System.Formats.UnityPackage.Tests/UnityPackageNET.Tests.csproj" Id="76e53b13-7b50-45fa-874e-eab93767f071" />
   <Project Path="UnityPackageNET/UnityPackageNET.csproj" />
 </Solution>
