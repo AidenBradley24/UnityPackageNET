@@ -1,21 +1,32 @@
-﻿namespace UnityPackageNET.Tests
+﻿using Xunit.Abstractions;
+
+namespace UnityPackageNET.Tests
 {
 	public class TestUnityPackageFile
 	{
+		private readonly ITestOutputHelper _output;
+
+		public TestUnityPackageFile(ITestOutputHelper output)
+		{
+			_output = output;
+		}
+
 		[Fact]
 		public void TestRoundTrip()
 		{
 			using var ms = new MemoryStream();
+			var meta = new UnityAssetMetadata(Guid.NewGuid());
+			meta.SaveToStream(ms);
 
-			// Create and save
-			var asset1 = new UnityAssetMetadata(Guid.NewGuid());
-			asset1.SaveToStream(ms);
-
-			// Reset position
 			ms.Position = 0;
+			using (var reader = new StreamReader(ms, leaveOpen: true))
+			{
+				var text = reader.ReadToEnd();
+				_output.WriteLine(text);
+			}
 
-			// Load
-			var asset2 = UnityAssetMetadata.LoadFromStream(ms);
+			ms.Position = 0;
+			var loaded = UnityAssetMetadata.LoadFromStream(ms);
 		}
 
 		[Fact]

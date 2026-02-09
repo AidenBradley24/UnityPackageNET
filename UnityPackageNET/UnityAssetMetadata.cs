@@ -52,7 +52,8 @@ namespace UnityPackageNET
 		public void SaveToStream(Stream stream)
 		{
 			using var writer = new StreamWriter(stream, leaveOpen: true);
-			_yamlStream.Save(writer);
+			_yamlStream.Save(writer, assignAnchors: false);
+			writer.Flush();
 		}
 
 		public static UnityAssetMetadata LoadFromStream(Stream stream)
