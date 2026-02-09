@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="System.Formats.UnityPackage.Tests/System.Formats.UnityPackage.Tests.csproj" Id="76e53b13-7b50-45fa-874e-eab93767f071" />
+  <Project Path="UnityPackageNET/System.Formats.UnityPackage.csproj" />
+</Solution>
