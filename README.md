@@ -1,5 +1,7 @@
 # UnityPackageNET
 
+[![NuGet Version](https://img.shields.io/nuget/v/UnityPackageNET)](https://www.nuget.org/packages/UnityPackageNET/)
+
 Read and write Unity Package files in .NET.
 
 ### Read a Unity Package file
