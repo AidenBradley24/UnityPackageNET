@@ -7,7 +7,7 @@ namespace UnityPackageNET
 		YamlStream _yamlStream;
 
 		public Guid Guid { get; }
-		public string PathName { get; set; }
+		public string PathName { get; set; } = "";
 
 		public YamlDocument Document => _yamlStream.Documents[0];
 
