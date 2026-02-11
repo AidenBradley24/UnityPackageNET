@@ -34,7 +34,7 @@ Read and write Unity Package files in .NET.
 	var entry = UnityPackageEntryFactory.MakeEmptyEntry("Assets/MyAsset.txt");
 
 	// access metadata YAML
-	entry.Metadata.DocRoot.Add("myKey", "myValue");
+	entry.Metadata.Root.Add("myKey", "myValue");
 
 	// write asset data stream
 	using (var ms = new MemoryStream())
