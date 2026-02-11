@@ -32,7 +32,7 @@ namespace UnityPackageNET.Tests
 				Assert.Equal(metadata, entry.Metadata);
 				Assert.Equal(entry.GUID, metadata.Guid);
 				Assert.Equal(expectedPaths[i++], metadata.PathName);
-				Assert.Equal(metadata.Guid, Guid.Parse((string)metadata.Document.RootNode["guid"]!));
+				Assert.Equal(metadata.Guid, Guid.Parse((string)metadata.Root["guid"]!));
 
 				entry = reader.GetNextEntry();
 			}
