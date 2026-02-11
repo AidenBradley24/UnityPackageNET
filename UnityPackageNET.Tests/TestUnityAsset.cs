@@ -1,5 +1,4 @@
-﻿using UnityPackageNET;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 
 namespace UnityPackageNET.Tests
 {
@@ -39,7 +38,7 @@ namespace UnityPackageNET.Tests
 			Assert.Equal("&11400000", asset.ObjectID);
 			Assert.True(monoBehaviourNode.Children.ContainsKey("m_Script"));
 			Assert.Equal("Assets/MyScriptableObject.asset", metadata.PathName);
-			Assert.True(metadata.DocRoot.Children.ContainsKey("NativeFormatImporter"));
+			Assert.True(metadata.Root.Children.ContainsKey("NativeFormatImporter"));
 
 			var ms = new MemoryStream();
 			asset.Save(ms, leaveOpen: true);

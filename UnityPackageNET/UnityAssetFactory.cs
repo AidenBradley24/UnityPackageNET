@@ -2,8 +2,21 @@
 
 namespace UnityPackageNET
 {
+	/// <summary>
+	/// Common factory methods for creating Unity assets. 
+	/// These methods create the asset's YAML structure and metadata with the necessary properties and values for Unity to recognize and import the asset correctly. 
+	/// You can further customize the returned UnityAsset and UnityAssetMetadata objects to add additional properties or modify existing ones as needed.
+	/// </summary>
 	public static class UnityAssetFactory
 	{
+		/// <summary>
+		/// Make a scriptable object instance. Note that the returned UnityAsset's Root will contain a "MonoBehaviour" node. 
+		/// This is where you add any additional properties specific to your scriptable object.
+		/// </summary>
+		/// <param name="pathname">The asset's file path in a Unity project including the file name. 
+		/// i.e. "Assets/Fruits/Apple.asset" where "Apple" is the scriptable object's name.</param>
+		/// <param name="scriptGuid">The GUID of the ScriptableObject script</param>
+		/// <returns></returns>
 		public static (UnityAsset asset, UnityAssetMetadata metadata, YamlMappingNode monoBehaviorRoot) MakeScriptableObject(string pathname, Guid scriptGuid)
 		{
 			string name = Path.GetFileNameWithoutExtension(pathname);
@@ -39,7 +52,7 @@ namespace UnityPackageNET
 			{
 				PathName = pathname
 			};
-			metadata.DocRoot.Add("NativeFormatImporter", new YamlMappingNode
+			metadata.Root.Add("NativeFormatImporter", new YamlMappingNode
 			{
 				{ "externalObjects", new YamlMappingNode() },
 				{ "mainObjectFileID", "11400000" },

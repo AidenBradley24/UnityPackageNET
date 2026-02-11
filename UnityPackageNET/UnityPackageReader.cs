@@ -4,6 +4,9 @@ using System.IO.Compression;
 
 namespace UnityPackageNET
 {
+	/// <summary>
+	/// Read Unity package (.unitypackage) files.
+	/// </summary>
 	public class UnityPackageReader : IDisposable
 	{
 		private readonly bool _leaveOpen;
@@ -15,6 +18,14 @@ namespace UnityPackageNET
 
 		UnityPackageEntry? currentEntry = null;
 
+		/// <summary>
+		/// Initializes a new instance of the UnityPackageReader class to read Unity package data from the specified stream.
+		/// </summary>
+		/// <remarks>The UnityPackageReader decompresses the provided stream using GZip and reads the contents as a
+		/// tar archive. Ensure the stream remains valid for the lifetime of the reader if leaveOpen is set to true.</remarks>
+		/// <param name="stream">The stream from which to read the Unity package. The stream must support reading and be positioned at the start of
+		/// the Unity package data.</param>
+		/// <param name="leaveOpen">true to leave the underlying stream open after the UnityPackageReader is disposed; otherwise, false.</param>
 		public UnityPackageReader(Stream stream, bool leaveOpen = false)
 		{
 			_backingStream = stream;
@@ -38,7 +49,11 @@ namespace UnityPackageNET
 
 			return true;
 		}
-
+		
+		/// <summary>
+		/// Get the next entry in the Unity package.
+		/// </summary>
+		/// <returns>The next UnityPackageEntry if available; otherwise, null if the end of the package is reached.</returns>
 		public UnityPackageEntry? GetNextEntry()
 		{
 			ObjectDisposedException.ThrowIf(_disposed, this);
@@ -74,6 +89,15 @@ namespace UnityPackageNET
 			return entry;
 		}
 
+		/// <summary>
+		/// Retrieves the metadata associated with the specified Unity package entry.
+		/// </summary>
+		/// <remarks>This method requires that the entry provided is the current entry returned by GetNextEntry. It
+		/// loads the metadata from the corresponding data streams.</remarks>
+		/// <param name="entry">The UnityPackageEntry for which metadata is to be retrieved. Must be the current entry returned by GetNextEntry.</param>
+		/// <returns>An instance of UnityAssetMetadata containing the metadata for the specified entry.</returns>
+		/// <exception cref="InvalidOperationException">Thrown if the specified entry is not the current entry or if the entry is null.</exception>
+		/// <exception cref="InvalidDataException">Thrown if the expected 'asset.meta' or 'pathname' entry for the specified GUID is not found.</exception>
 		public UnityAssetMetadata GetMetadata(UnityPackageEntry entry)
 		{
 			if (currentEntry != entry || entry == null)
@@ -104,6 +128,7 @@ namespace UnityPackageNET
 			return metadata;
 		}
 
+		/// <inheritdoc/>
 		public void Dispose()
 		{
 			GC.SuppressFinalize(this);

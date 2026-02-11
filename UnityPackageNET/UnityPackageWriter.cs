@@ -4,6 +4,9 @@ using System.Text;
 
 namespace UnityPackageNET
 {
+	/// <summary>
+	/// Write Unity package (.unitypackage) files.
+	/// </summary>
 	public class UnityPackageWriter : IDisposable
 	{
 		private readonly bool _leaveOpen;
@@ -13,6 +16,14 @@ namespace UnityPackageNET
 		private readonly GZipStream _gzipStream;
 		private readonly Stream _backingStream;
 
+		/// <summary>
+		/// Initializes a new instance of the UnityPackageWriter class that writes a compressed Unity package archive to the
+		/// specified stream.
+		/// </summary>
+		/// <remarks>This constructor creates a GZip-compressed tar archive for writing Unity package data. The
+		/// leaveOpen parameter allows control over the lifetime of the underlying stream when disposing the writer.</remarks>
+		/// <param name="stream">The output stream to which the Unity package archive will be written. The stream must be writable.</param>
+		/// <param name="leaveOpen">true to leave the provided stream open after the UnityPackageWriter is disposed; otherwise, false.</param>
 		public UnityPackageWriter(Stream stream, bool leaveOpen = false)
 		{
 			_backingStream = stream;
@@ -21,22 +32,30 @@ namespace UnityPackageNET
 			_tarWriter = new TarWriter(_gzipStream, leaveOpen: true);
 		}
 
+		/// <summary>
+		/// Write an entry to the Unity package.
+		/// </summary>
+		/// <exception cref="ArgumentException"></exception>
 		public void WriteEntry(UnityPackageEntry entry)
 		{
 			ObjectDisposedException.ThrowIf(_disposed, this);
-			ArgumentNullException.ThrowIfNull(entry);
+			ArgumentNullException.ThrowIfNull(entry, nameof(entry));
+			if (entry.Metadata is null) throw new ArgumentException("Entry has no metadata!", nameof(entry));
+			if (entry.DataStream is null) throw new ArgumentException("Entry has no data stream!", nameof(entry));
+			if (entry.GUID != entry.Metadata.Guid)
+			{
+				throw new ArgumentException("Entry GUID does not match metadata GUID!", nameof(entry));
+			}
 
 			var dirTarEntry = new GnuTarEntry(TarEntryType.Directory, entry.GUID.ToString("N") + "/");
 			_tarWriter.WriteEntry(dirTarEntry);
 
-			if (entry.DataStream == null) throw new Exception("Entry has no data stream!");
 			var assetTarEntry = new GnuTarEntry(TarEntryType.RegularFile, entry.GUID.ToString("N") + "/asset")
 			{
 				DataStream = entry.DataStream
 			};
 			_tarWriter.WriteEntry(assetTarEntry);
 
-			if (entry.Metadata == null) throw new Exception("Entry has no metadata!");
 
 			using (var ms = new MemoryStream())
 			{
@@ -62,6 +81,7 @@ namespace UnityPackageNET
 
 		}
 
+		/// <inheritdoc/>
 		public void Dispose()
 		{
 			GC.SuppressFinalize(this);

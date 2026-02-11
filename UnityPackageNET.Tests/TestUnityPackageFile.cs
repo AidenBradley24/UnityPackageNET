@@ -26,7 +26,7 @@ namespace UnityPackageNET.Tests
 			}
 
 			ms.Position = 0;
-			var loaded = UnityAssetMetadata.LoadFromStream(ms);
+			var loaded = UnityAssetMetadata.CreateFromStream(ms);
 		}
 
 		[Fact]
