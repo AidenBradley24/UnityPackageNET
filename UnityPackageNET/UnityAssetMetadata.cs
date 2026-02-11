@@ -2,6 +2,9 @@
 
 namespace UnityPackageNET
 {
+	/// <summary>
+	/// The metadata of a Unity asset, stored in the .meta file. Contains the asset's GUID and other import settings.
+	/// </summary>
 	public class UnityAssetMetadata
 	{
 		YamlStream _yamlStream;
@@ -10,6 +13,7 @@ namespace UnityPackageNET
 		public string PathName { get; set; } = "";
 
 		public YamlDocument Document => _yamlStream.Documents[0];
+		public YamlMappingNode DocRoot => (YamlMappingNode)_yamlStream.Documents[0].RootNode;
 
 		public UnityAssetMetadata(Guid guid)
 		{
