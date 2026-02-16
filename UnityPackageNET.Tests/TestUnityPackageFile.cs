@@ -1,6 +1,4 @@
-﻿using Xunit.Abstractions;
-
-namespace UnityPackageNET.Tests
+﻿namespace UnityPackageNET.Tests
 {
 	public class TestUnityPackageFile
 	{
